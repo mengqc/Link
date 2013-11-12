@@ -4,9 +4,9 @@ package
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
+	import flash.geom.Rectangle;
 	
 	import game.Game;
-	import game.GameMain;
 	
 	import starling.core.Starling;
 	
@@ -26,6 +26,7 @@ package
 		}
 		
 		private function onResize(e : Event) : void {
+			_starling.viewPort = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight);
 		}
 		
 	}
