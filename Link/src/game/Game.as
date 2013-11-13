@@ -2,6 +2,9 @@ package game
 {
 	import flash.geom.Point;
 	
+	import game.utils.Input;
+	import game.utils.InputEvent;
+	
 	import starling.display.Sprite;
 	import starling.events.Event;
 	import starling.events.Touch;
@@ -13,13 +16,16 @@ package game
 		private var _spGrid : Array;
 		private var _row : int;
 		private var _col : int;
+		private var _input : Input;
 		
 		public function Game()
 		{
 			super();
-			
+			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+		}
+		
+		private function onAddedToStage(e : Event) : void {
 			TextureManager.s.initTextures();
-			
 			initMap(4, 8);
 			randFillMap();
 			initRender();
@@ -62,34 +68,51 @@ package game
 			for(var i : int = 0; i < _grid.length; i++){
 				_spGrid[i] = [];
 				for(var j : int = 0; j < _grid[i].length; j++){
-					var gridItem : GridItem = new GridItem();
-					_spGrid[i][j] = gridItem;
-					addChild(gridItem);
-					gridItem.x = j * 50;
-					gridItem.y = i * 50;
-					gridItem.update(_grid[i][j]);
+					if(_grid[i][j]){
+						var gridItem : GridItem = new GridItem();
+						_spGrid[i][j] = gridItem;
+						addChild(gridItem);
+						gridItem.x = j * 50;
+						gridItem.y = i * 50;
+						gridItem.update(_grid[i][j]);
+					}else{
+						_spGrid[i][j] = null;
+					}
 				}
 			}
 		}
 		
 		private function initEvents() : void {
-			addEventListener(TouchEvent.TOUCH, onTouched);
+			_input = new Input(stage);
+			_input.addEventListener(InputEvent.CLICK, onClicked);
 		}
 		
-		private var _selectedItem : GridItem;
+		private var _selectedItems : Array = [];
 		
-		private function onTouched(e : TouchEvent) : void {
-			var touch : Touch = e.getTouch(stage);
-			if(touch){
-				var pos : Point = touch.getLocation(stage);
-				if(touch.phase == "hover"){
-					if(_selectedItem){
-						_selectedItem.unselect();
+		private function onClicked(e : InputEvent) : void {
+			var input : Input = e.target as Input;
+			var pos : Point = e.touch.getLocation(input.source);
+			var col : int = Math.min(int(pos.x / 50), _col);
+			var row : int = Math.min(int(pos.y / 50), _row);
+			var secondItem : GridItem = _spGrid[row][col];
+			if(secondItem){
+				//选中
+				if(_selectedItems.length == 1){
+					if(_selectedItems[0].type == secondItem.type){
+						_selectedItems.push(secondItem);
+						secondItem.select();
+						//判断消除
 					}
-					var col : int = Math.min(int(pos.x / 50), _col);
-					var row : int = Math.min(int(pos.y / 50), _row);
-					_selectedItem = _spGrid[row][col];
-					_selectedItem.select();
+				}else if(_selectedItems.length == 0){
+					//选中第一个
+					_selectedItems.push(secondItem);
+					secondItem.select();
+				}else{
+					//取消选择
+					for each(var gridItem : GridItem in _selectedItems){
+						gridItem.unselect();
+					}
+					_selectedItems.length = 0;
 				}
 			}
 		}

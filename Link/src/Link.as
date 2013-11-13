@@ -21,8 +21,8 @@ package
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			_starling = new Starling(Game, stage);
-			_starling.start();
 			stage.addEventListener(Event.RESIZE, onResize);
+			_starling.start();
 		}
 		
 		private function onResize(e : Event) : void {

@@ -8,6 +8,7 @@ package game
 	{
 		private var _img : Image;
 		private var _cursorImg : Image;
+		private var _type : int = 0;
 		
 		public function GridItem()
 		{
@@ -15,6 +16,7 @@ package game
 		}
 		
 		public function update(type : int) : void {
+			_type = type;
 			if(_img){
 				removeChild(_img);
 			}
@@ -40,6 +42,10 @@ package game
 		
 		public function unselect() : void {
 			removeChild(_cursorImg);
+		}
+		
+		public function get type() : int {
+			return _type;
 		}
 		
 	}
