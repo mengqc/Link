@@ -30,17 +30,17 @@ package game
 		}
 		
 		public function initTextures() : void {
-			_textureDict["1"] = Texture.fromColor(50, 50, 0xFFFF0000);
-			_textureDict["2"] = Texture.fromColor(50, 50, 0xFFFFFF00);
-			_textureDict["3"] = Texture.fromColor(50, 50, 0xFF00FF00);
-			_textureDict["4"] = Texture.fromColor(50, 50, 0xFF0000FF);
+			_textureDict["1"] = Texture.fromColor(GameConfig.ITEM_WIDTH, GameConfig.ITEM_HEIGHT, 0xFFFF0000);
+			_textureDict["2"] = Texture.fromColor(GameConfig.ITEM_WIDTH, GameConfig.ITEM_HEIGHT, 0xFFFFFF00);
+			_textureDict["3"] = Texture.fromColor(GameConfig.ITEM_WIDTH, GameConfig.ITEM_HEIGHT, 0xFF00FF00);
+			_textureDict["4"] = Texture.fromColor(GameConfig.ITEM_WIDTH, GameConfig.ITEM_HEIGHT, 0xFF0000FF);
 			
 			var shape : Shape = new Shape();
 			shape.graphics.beginFill(0, 0);
 			shape.graphics.lineStyle(5, 0);
-			shape.graphics.drawRect(0, 0, 50, 50);
+			shape.graphics.drawRect(0, 0, GameConfig.ITEM_WIDTH, GameConfig.ITEM_HEIGHT);
 			shape.graphics.endFill();
-			var bmd : BitmapData = new BitmapData(50, 50, true, 0);
+			var bmd : BitmapData = new BitmapData(GameConfig.ITEM_WIDTH, GameConfig.ITEM_HEIGHT, true, 0);
 			bmd.draw(shape);
 			_textureDict["cursor"] = Texture.fromBitmapData(bmd);
 		}

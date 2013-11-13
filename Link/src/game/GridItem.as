@@ -9,6 +9,8 @@ package game
 		private var _img : Image;
 		private var _cursorImg : Image;
 		private var _type : int = 0;
+		public var col : int;
+		public var row : int;
 		
 		public function GridItem()
 		{

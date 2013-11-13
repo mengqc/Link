@@ -72,8 +72,10 @@ package game
 						var gridItem : GridItem = new GridItem();
 						_spGrid[i][j] = gridItem;
 						addChild(gridItem);
-						gridItem.x = j * 50;
-						gridItem.y = i * 50;
+						gridItem.col = j;
+						gridItem.row = i;
+						gridItem.x = j * GameConfig.ITEM_WIDTH;
+						gridItem.y = i * GameConfig.ITEM_HEIGHT;
 						gridItem.update(_grid[i][j]);
 					}else{
 						_spGrid[i][j] = null;
@@ -92,8 +94,8 @@ package game
 		private function onClicked(e : InputEvent) : void {
 			var input : Input = e.target as Input;
 			var pos : Point = e.touch.getLocation(input.source);
-			var col : int = Math.min(int(pos.x / 50), _col);
-			var row : int = Math.min(int(pos.y / 50), _row);
+			var col : int = Math.min(int(pos.x / GameConfig.ITEM_WIDTH), _col);
+			var row : int = Math.min(int(pos.y / GameConfig.ITEM_HEIGHT), _row);
 			var secondItem : GridItem = _spGrid[row][col];
 			if(secondItem){
 				//选中
@@ -101,7 +103,10 @@ package game
 					if(_selectedItems[0].type == secondItem.type){
 						_selectedItems.push(secondItem);
 						secondItem.select();
-						//判断消除
+						if(isCanEliminate(_selectedItems[0], _selectedItems[1]);){
+							//可消除
+							
+						}
 					}
 				}else if(_selectedItems.length == 0){
 					//选中第一个
@@ -115,6 +120,11 @@ package game
 					_selectedItems.length = 0;
 				}
 			}
+		}
+		
+		private function isCanEliminate(item1 : GridItem, item2 : GridItem) : Boolean {
+			
+			return false;
 		}
 		
 		private function traceGrid() : void {
