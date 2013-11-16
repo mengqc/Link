@@ -100,83 +100,194 @@ package game
 			if(secondItem){
 				//选中
 				if(_selectedItems.length == 1){
-					if(_selectedItems[0].type == secondItem.type){
+					if(_selectedItems[0].type == secondItem.type && isCanEliminate(_selectedItems[0], secondItem)){
+						//可消除
+						removeGridItem(_selectedItems[0]);
+						removeGridItem(secondItem);
+						_selectedItems.length = 0;
+					}else{
+						for each(var gridItem : GridItem in _selectedItems){
+							gridItem.unselect();
+						}
+						_selectedItems.length = 0;
 						_selectedItems.push(secondItem);
 						secondItem.select();
-						if(isCanEliminate(_selectedItems[0], _selectedItems[1])){
-							//可消除
-							
-						}
 					}
 				}else if(_selectedItems.length == 0){
 					//选中第一个
 					_selectedItems.push(secondItem);
 					secondItem.select();
-				}else{
-					//取消选择
-					for each(var gridItem : GridItem in _selectedItems){
-						gridItem.unselect();
-					}
-					_selectedItems.length = 0;
 				}
 			}
+		}
+		
+		private function removeGridItem(item : GridItem) : void {
+			_grid[item.row][item.col] = 0;
+			_spGrid[item.row][item.col] = null;
+			removeChild(item);
 		}
 		
 		private function isCanEliminate(item1 : GridItem, item2 : GridItem) : Boolean {
-			trace(item1.col, item1.row, item2.col, item2.row);
-			scanH(item1, item2);
+			if(item1.col == item2.col && item1.row == item2.row){
+				//相同的点不能连通
+				return false;
+			}
+			var ptA : Point = new Point(item1.col, item1.row);
+			var ptB : Point = new Point(item2.col, item2.row)
+			var isLinked : Boolean = false;
+			//直线连通检测
+			isLinked = isLineLinkable(ptA, ptB);
+			if(isLinked){
+				return true;
+			}
+			
+			//一折连通检测
+			var cornerPt : Point = isCornerLinkable(ptA, ptB);
+			if(cornerPt){
+				return true;
+			}
+			
+			//两折连通检测
+			var corners : Array = isCorner2Linkable(ptA, ptB);
+			if(corners){
+				return true;
+			}
+			
 			return false;
 		}
 		
-		private function scanH(item1 : GridItem, item2 : GridItem) : Array {
-			var minColA : int = item1.col;
-			while(minColA > 0 && _grid[item1.row][minColA - 1] == 0){
-				minColA = minColA - 1;
-			}
-			var maxColA : int = item1.col;
-			while(maxColA < _grid[item1.row].length - 2 && _grid[item1.row][maxColA + 1] == 0){
-				maxColA = maxColA + 1;
-			}
-			
-			var minColB : int = item2.col;
-			while(minColB > 0 && _grid[item2.row][minColB - 1] == 0){
-				minColB = minColB - 1;
-			}
-			var maxColB : int = item2.col;
-			while(maxColB < _grid[item1.row].length - 2 && _grid[item1.row][maxColB + 1] == 0){
-				maxColB = maxColB + 1;
-			}
-			trace(minColA, maxColA, minColB, maxColB);
-			var isIntersect : Boolean = false;
-			if(item1.col <= item2.col){
-				if(maxColA >= minColB){
-					//有交集
-					isIntersect = true;
-				}else{
-					//不相交，不能联通
-					isIntersect = false;
+		private function isLineLinkable(pt1 : Point, pt2 : Point) : Boolean {
+			//pt.x代表col，pt.y代表row
+			if(pt1.x == pt2.x){	//列相同
+				var startRow : int = pt1.y <= pt2.y ? pt1.y : pt2.y;
+				var endRow : int = pt1.y >= pt2.y ? pt1.y : pt2.y;
+				var dltRow : int = endRow - startRow - 1;
+				while(dltRow > 0){
+					if(_grid[startRow + dltRow][pt1.x]){
+						//有一个点不为0，则无法连通
+						return false;
+					}
+					dltRow--;
 				}
-			}else{
-				if(maxColB >= minColA){
-					//有交集
-					isIntersect = true;
-				}else{
-					//不相交，不能联通
-					isIntersect = false;
+				return true;
+			}else if(pt1.y == pt2.y){ //行相同
+				var startCol : int = pt1.x <= pt2.x ? pt1.x : pt2.x;
+				var endCol : int = pt1.x >= pt2.x ? pt1.x : pt2.x;
+				var dltCol : int = endCol - startCol - 1;
+				while(dltCol > 0){
+					if(_grid[pt1.y][startCol + dltCol]){
+						//有一个点不为0，则无法连通
+						return false;
+					}
+					dltCol--;
 				}
+				return true;
+			}else{ //col和row没有一个相同的则无法直线连通
+				return false;
 			}
-			if(isIntersect){
-				var minCol : int = minColA > minColB ? minColA : minColB;
-				var maxCol : int = maxColA < maxColB ? maxColA : maxColB;
-				trace(minCol, maxCol);
-			}else{
-				trace("不相交");
-			}
-			return [];
 		}
 		
-		private function scanV(item1 : GridItem, item2 : GridItem) : Array {
-			return [];
+		private function isCornerLinkable(pt1 : Point, pt2 : Point) : Point {
+			if(pt1.x != pt2.x && pt1.y != pt2.y){
+				//col和row均不相等，符合拐角检测条件
+				var ptList : Array = [new Point(pt1.x, pt2.y), new Point(pt2.x, pt1.y)];
+				for each(var cornerPt : Point in ptList){
+					if(_grid[cornerPt.y][cornerPt.x] == 0){
+						if(isLineLinkable(pt1, cornerPt) && isLineLinkable(cornerPt, pt2)){
+							return cornerPt;
+						}
+					}
+				}
+				return null;
+			}else{
+				//不符合拐角检测规则
+				return null;
+			}
+		}
+		
+		private function isCorner2Linkable(pt1 : Point, pt2 : Point) : Array {
+			//col和row均不相等，符合2拐角检测条件
+			//横向扫描
+			var mid : int = (pt1.x + pt2.x) / 2;
+			var offset : int = 0;
+			var cornerPt : Point = null;
+			var sign : int = 1;
+			var cursor : int = 0;
+			var bothOut : Boolean = false;
+			var isIn : Boolean = false;
+			var cornerPt2 : Point = null;
+			while(true){
+				cursor = mid + sign * offset;
+				cornerPt = new Point(cursor, pt1.y);
+				isIn = isInBounds(cursor, true);
+				if(isIn && _grid[cornerPt.y][cornerPt.x] == 0
+					&& isLineLinkable(pt1, cornerPt)
+				){
+					cornerPt2 = isCornerLinkable(cornerPt, pt2);
+					if(cornerPt2){
+						return [cornerPt, cornerPt2];
+					}
+				}
+				if(sign == 1){
+					offset++;
+					bothOut &&= !isIn;
+					if(bothOut){
+						break;
+					}
+				}else{
+					bothOut = !isIn;
+				}
+				sign *= -1;
+			}
+			
+			//纵向扫描
+			mid = (pt1.y + pt2.y) / 2;
+			offset = 0;
+			cornerPt = null;
+			sign = 1;
+			cursor = 0;
+			bothOut = false;
+			isIn = false;
+			cornerPt2 = null;
+			while(true){
+				cursor = mid + sign * offset;
+				cornerPt = new Point(pt1.x, cursor);
+				isIn = isInBounds(cursor, false);
+				if(isIn && _grid[cornerPt.y][cornerPt.x] == 0
+					&& isLineLinkable(pt1, cornerPt)){
+					cornerPt2 = isCornerLinkable(cornerPt, pt2);
+					if(cornerPt2){
+						return [cornerPt, cornerPt2];
+					}
+				}
+				if(sign == 1){
+					offset++;
+					bothOut &&= !isIn;
+					if(bothOut){
+						break;
+					}
+				}else{
+					bothOut = !isIn;
+				}
+				sign *= -1;
+			}
+			return null;
+		}
+		
+		private function isInBounds(n : int, isHorizontal : Boolean = true) : Boolean {
+			if(isHorizontal){
+				if(n >= 0 && n < _grid[0].length){
+					return true;
+				}else{
+					return false;
+				}
+			}else{
+				if(n >= 0 && n < _grid.length){
+					return true;
+				}else{
+					return false;
+				}
+			}
 		}
 		
 		private function traceGrid() : void {
