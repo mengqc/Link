@@ -103,7 +103,7 @@ package game
 					if(_selectedItems[0].type == secondItem.type){
 						_selectedItems.push(secondItem);
 						secondItem.select();
-						if(isCanEliminate(_selectedItems[0], _selectedItems[1]);){
+						if(isCanEliminate(_selectedItems[0], _selectedItems[1])){
 							//可消除
 							
 						}
@@ -123,8 +123,60 @@ package game
 		}
 		
 		private function isCanEliminate(item1 : GridItem, item2 : GridItem) : Boolean {
-			
+			trace(item1.col, item1.row, item2.col, item2.row);
+			scanH(item1, item2);
 			return false;
+		}
+		
+		private function scanH(item1 : GridItem, item2 : GridItem) : Array {
+			var minColA : int = item1.col;
+			while(minColA > 0 && _grid[item1.row][minColA - 1] == 0){
+				minColA = minColA - 1;
+			}
+			var maxColA : int = item1.col;
+			while(maxColA < _grid[item1.row].length - 2 && _grid[item1.row][maxColA + 1] == 0){
+				maxColA = maxColA + 1;
+			}
+			
+			var minColB : int = item2.col;
+			while(minColB > 0 && _grid[item2.row][minColB - 1] == 0){
+				minColB = minColB - 1;
+			}
+			var maxColB : int = item2.col;
+			while(maxColB < _grid[item1.row].length - 2 && _grid[item1.row][maxColB + 1] == 0){
+				maxColB = maxColB + 1;
+			}
+			trace(minColA, maxColA, minColB, maxColB);
+			var isIntersect : Boolean = false;
+			if(item1.col <= item2.col){
+				if(maxColA >= minColB){
+					//有交集
+					isIntersect = true;
+				}else{
+					//不相交，不能联通
+					isIntersect = false;
+				}
+			}else{
+				if(maxColB >= minColA){
+					//有交集
+					isIntersect = true;
+				}else{
+					//不相交，不能联通
+					isIntersect = false;
+				}
+			}
+			if(isIntersect){
+				var minCol : int = minColA > minColB ? minColA : minColB;
+				var maxCol : int = maxColA < maxColB ? maxColA : maxColB;
+				trace(minCol, maxCol);
+			}else{
+				trace("不相交");
+			}
+			return [];
+		}
+		
+		private function scanV(item1 : GridItem, item2 : GridItem) : Array {
+			return [];
 		}
 		
 		private function traceGrid() : void {
