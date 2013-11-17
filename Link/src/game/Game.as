@@ -14,13 +14,13 @@ package game
 			super();
 			_gameScene = new GameScene();
 			addChild(_gameScene);
-			_gameScene.x = 200;
-			_gameScene.y = 100;
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		}
 		
 		public function resize(width : Number, height : Number) : void {
 			trace("game resize");
+			_gameScene.x = (stage.stageWidth - _gameScene.width) / 2;
+			_gameScene.y = (stage.stageHeight - _gameScene.height) / 2;
 		}
 		
 		private function onAddedToStage(e : Event) : void {
@@ -28,6 +28,7 @@ package game
 			_gameScene.initialize(8, 4);
 			_gameScene.randFillMap();
 			_gameScene.updateViewState();
+			resize(stage.stageWidth, stage.stageHeight);
 		}
 	}
 }
