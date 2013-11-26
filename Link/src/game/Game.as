@@ -18,7 +18,6 @@ package game
 		}
 		
 		public function resize(width : Number, height : Number) : void {
-			trace("game resize");
 			_gameScene.x = (stage.stageWidth - _gameScene.sceneWidth) / 2;
 			_gameScene.y = (stage.stageHeight - _gameScene.sceneHeight) / 2;
 		}
