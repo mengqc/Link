@@ -105,5 +105,13 @@ package game.core
 			_spGrid[item.row][item.col].update(0);
 		}
 		
+		public function get sceneWidth() : Number {
+			return GameConfig.ITEM_WIDTH * _model.mapCol;
+		}
+		
+		public function get sceneHeight() : Number {
+			return GameConfig.ITEM_HEIGHT * _model.mapRow;
+		}
+		
 	}
 }
